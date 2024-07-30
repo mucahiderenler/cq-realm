@@ -4,7 +4,8 @@ type Village struct {
 	ID       string
 	PlayerID string
 	Name     string
-	Location string
+	X        int
+	Y        int
 	// Resources       Resources
 	// ProductionRates ProductionRates
 	// Buildings       []Building

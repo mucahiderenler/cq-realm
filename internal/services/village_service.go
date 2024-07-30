@@ -5,14 +5,17 @@ import (
 	"mucahiderenler/conquerors-realm/internal/models"
 	"mucahiderenler/conquerors-realm/internal/repository"
 	"regexp"
+
+	"go.uber.org/zap"
 )
 
 type VillageService struct {
-	Repo *repository.VillageRepository
+	Repo   *repository.VillageRepository
+	Logger *zap.Logger
 }
 
-func NewVillageService(repo *repository.VillageRepository) *VillageService {
-	return &VillageService{Repo: repo}
+func NewVillageService(repo *repository.VillageRepository, logger *zap.Logger) *VillageService {
+	return &VillageService{Repo: repo, Logger: logger}
 }
 
 // Validate village data

@@ -28,23 +28,3 @@ func NewHTTPServer(lc fx.Lifecycle, mux *mux.Router, logger *zap.Logger) *http.S
 	})
 	return server
 }
-
-func NewServeMux(routes []Route) *mux.Router {
-	mux := mux.NewRouter()
-	for _, route := range routes {
-		route.RegisterRoutes(mux)
-	}
-	return mux
-}
-
-type Route interface {
-	RegisterRoutes(*mux.Router)
-}
-
-func AsRoute(f any) any {
-	return fx.Annotate(
-		f,
-		fx.As(new(Route)),
-		fx.ResultTags(`group:"routes"`),
-	)
-}

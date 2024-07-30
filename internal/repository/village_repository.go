@@ -15,7 +15,7 @@ func NewVillageRepository(db *sql.DB) *VillageRepository {
 
 func (r *VillageRepository) GetByID(id string) (*models.Village, error) {
 	village := &models.Village{}
-	err := r.DB.QueryRow("SELECT id, name FROM villages WHERE id = $1", id).Scan(&village.ID, &village.Name)
+	err := r.DB.QueryRow("SELECT id, name, x, y FROM villages WHERE id = $1", id).Scan(&village.ID, &village.Name, &village.X, &village.Y)
 	if err != nil {
 		return nil, err
 	}
