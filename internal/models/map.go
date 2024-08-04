@@ -2,11 +2,9 @@ package models
 
 type VillageID string
 type Coordinates struct {
-	X int
-	Y int
+	X int `json:"x"`
+	Y int `json:"y"`
 }
 type Map struct {
-	ID       int
-	Name     string
-	Villages map[VillageID]Coordinates
+	Villages []*Village `json:"villages"`
 }

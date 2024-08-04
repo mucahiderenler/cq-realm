@@ -14,10 +14,10 @@ func NewMapRepository(db *sql.DB) *MapRepository {
 	return &MapRepository{DB: db}
 }
 
-func (repo *MapRepository) GetByID(mapID string) (*models.Map, error) {
+func (repo *MapRepository) GetMap() (*models.Map, error) {
 	m := &models.Map{}
 	var villagesJSON []byte
-	err := repo.DB.QueryRow("select id, name,villages from map where id = $1", mapID).Scan(&m.ID, &m.Name, &villagesJSON)
+	err := repo.DB.QueryRow("select villages from map where id = 1").Scan(&villagesJSON)
 
 	if err != nil {
 		return nil, err

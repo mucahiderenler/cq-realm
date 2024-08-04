@@ -17,10 +17,7 @@ func NewMapHandler(service *services.MapService) *MapHandler {
 }
 
 func (m *MapHandler) getMapById(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	mapID := vars["id"]
-
-	Map, err := m.Service.GetByID(mapID)
+	Map, err := m.Service.GetMap()
 
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusNotFound)
@@ -32,5 +29,5 @@ func (m *MapHandler) getMapById(w http.ResponseWriter, r *http.Request) {
 }
 
 func (m *MapHandler) RegisterRoutes(r *mux.Router) {
-	r.HandleFunc("/map/{id:[a-zA-Z0-9]+}", m.getMapById).Methods("GET")
+	r.HandleFunc("/map", m.getMapById).Methods("GET")
 }

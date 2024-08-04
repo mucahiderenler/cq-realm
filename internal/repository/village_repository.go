@@ -36,3 +36,26 @@ func (r *VillageRepository) Delete(id string) error {
 	_, err := r.DB.Exec("DELETE FROM villages WHERE id = $1", id)
 	return err
 }
+
+func (r *VillageRepository) GetAllVillages() ([]*models.Village, error) {
+	var villages []*models.Village
+	rowVillages, err := r.DB.Query("SELECT id, name, x, y, coalesce(owner_name, ''), owner_id, point, village_type FROM villages")
+
+	if err != nil {
+		return nil, err
+	}
+
+	for rowVillages.Next() {
+		village := &models.Village{}
+		err := rowVillages.Scan(&village.ID, &village.Name, &village.X, &village.Y, &village.Owner_name, &village.Owner_id, &village.Point, &village.Type)
+
+		if err != nil {
+			return nil, err
+		}
+
+		villages = append(villages, village)
+
+	}
+
+	return villages, nil
+}

@@ -6,12 +6,14 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
+	"github.com/rs/cors"
 	"go.uber.org/fx"
 	"go.uber.org/zap"
 )
 
 func NewHTTPServer(lc fx.Lifecycle, mux *mux.Router, logger *zap.Logger) *http.Server {
-	server := &http.Server{Addr: ":8080", Handler: mux}
+	handler := cors.Default().Handler(mux)
+	server := &http.Server{Addr: ":8080", Handler: handler}
 	lc.Append(fx.Hook{
 		OnStart: func(ctx context.Context) error {
 			ln, err := net.Listen("tcp", server.Addr)

@@ -30,6 +30,16 @@ func (s *VillageService) validateVillage(village *models.Village) error {
 	return nil
 }
 
+func (s *VillageService) GetAllVillages() ([]*models.Village, error) {
+	villages, err := s.Repo.GetAllVillages()
+
+	if err != nil {
+		return nil, err
+	}
+
+	return villages, nil
+}
+
 // Get a village by its ID
 func (s *VillageService) GetVillageByID(id string) (*models.Village, error) {
 	village, err := s.Repo.GetByID(id)

@@ -2,23 +2,24 @@ package services
 
 import (
 	"mucahiderenler/conquerors-realm/internal/models"
-	"mucahiderenler/conquerors-realm/internal/repository"
 )
 
 type MapService struct {
-	Repo *repository.MapRepository
+	villageService *VillageService
 }
 
-func NewMapService(repo *repository.MapRepository) *MapService {
-	return &MapService{Repo: repo}
+func NewMapService(villageService *VillageService) *MapService {
+	return &MapService{villageService: villageService}
 }
 
-func (s *MapService) GetByID(mapID string) (*models.Map, error) {
-	m, err := s.Repo.GetByID(mapID)
-
+func (s *MapService) GetMap() (*models.Map, error) {
+	villages, err := s.villageService.GetAllVillages()
 	if err != nil {
 		return nil, err
 	}
+
+	m := &models.Map{}
+	m.Villages = villages
 
 	return m, nil
 }
