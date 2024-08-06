@@ -1,0 +1,14 @@
+output   = "my_models"
+wipe     = true
+no-tests = true
+add-enum-types = true
+
+[psql]
+  dbname = "cqrealm"
+  host   = "127.0.0.1"
+  port   = 5432
+  user   = "postgres"
+  pass   = "password"
+  schema = "public"
+  sslmode = "disable"
+  blacklist = ["migrations", "other"]

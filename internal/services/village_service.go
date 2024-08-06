@@ -1,10 +1,9 @@
 package services
 
 import (
-	"errors"
-	"mucahiderenler/conquerors-realm/internal/models"
+	"context"
+	models "mucahiderenler/conquerors-realm/internal/models"
 	"mucahiderenler/conquerors-realm/internal/repository"
-	"regexp"
 
 	"go.uber.org/zap"
 )
@@ -14,24 +13,29 @@ type VillageService struct {
 	Logger *zap.Logger
 }
 
+type GetVillageByIDResult struct {
+	Village  *models.Village
+	Building []*models.Building
+}
+
 func NewVillageService(repo *repository.VillageRepository, logger *zap.Logger) *VillageService {
 	return &VillageService{Repo: repo, Logger: logger}
 }
 
 // Validate village data
 func (s *VillageService) validateVillage(village *models.Village) error {
-	if village.Name == "" {
-		return errors.New("village name is required")
-	}
-	if !regexp.MustCompile(`^[a-zA-Z0-9 ]+$`).MatchString(village.Name) {
-		return errors.New("village name can only contain letters, numbers, and spaces")
-	}
+	// if village.Name == "" {
+	// 	return errors.New("village name is required")
+	// }
+	// if !regexp.MustCompile(`^[a-zA-Z0-9 ]+$`).MatchString(village.Name) {
+	// 	return errors.New("village name can only contain letters, numbers, and spaces")
+	// }
 	// Additional validations can be added here
 	return nil
 }
 
-func (s *VillageService) GetAllVillages() ([]*models.Village, error) {
-	villages, err := s.Repo.GetAllVillages()
+func (s *VillageService) GetAllVillages(ctx context.Context) ([]*models.Village, error) {
+	villages, err := s.Repo.GetAllVillages(ctx)
 
 	if err != nil {
 		return nil, err
@@ -41,13 +45,15 @@ func (s *VillageService) GetAllVillages() ([]*models.Village, error) {
 }
 
 // Get a village by its ID
-func (s *VillageService) GetVillageByID(id string) (*models.Village, error) {
-	village, err := s.Repo.GetByID(id)
+func (s *VillageService) GetVillageByID(ctx context.Context, id string) (*GetVillageByIDResult, error) {
+	village, err := s.Repo.GetByID(ctx, id)
+	buildings := village.R.Buildings
+	result := &GetVillageByIDResult{Village: village, Building: buildings}
 	if err != nil {
 		return nil, err
 	}
 	// Perform any additional business logic if needed
-	return village, nil
+	return result, nil
 }
 
 // Create a new village

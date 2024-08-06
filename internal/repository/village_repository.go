@@ -1,22 +1,26 @@
 package repository
 
 import (
-	"database/sql"
-	"mucahiderenler/conquerors-realm/internal/models"
+	"context"
+	"fmt"
+	models "mucahiderenler/conquerors-realm/internal/models"
+
+	"github.com/jmoiron/sqlx"
+	. "github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
 
 type VillageRepository struct {
-	DB *sql.DB
+	DB *sqlx.DB
 }
 
-func NewVillageRepository(db *sql.DB) *VillageRepository {
+func NewVillageRepository(db *sqlx.DB) *VillageRepository {
 	return &VillageRepository{DB: db}
 }
 
-func (r *VillageRepository) GetByID(id string) (*models.Village, error) {
-	village := &models.Village{}
-	err := r.DB.QueryRow("SELECT id, name, x, y FROM villages WHERE id = $1", id).Scan(&village.ID, &village.Name, &village.X, &village.Y)
+func (r *VillageRepository) GetByID(ctx context.Context, id string) (*models.Village, error) {
+	village, err := models.Villages(Load(Rels(models.VillageRels.Buildings))).One(ctx, r.DB)
 	if err != nil {
+		fmt.Println(err)
 		return nil, err
 	}
 	return village, nil
@@ -37,24 +41,11 @@ func (r *VillageRepository) Delete(id string) error {
 	return err
 }
 
-func (r *VillageRepository) GetAllVillages() ([]*models.Village, error) {
+func (r *VillageRepository) GetAllVillages(ctx context.Context) ([]*models.Village, error) {
 	var villages []*models.Village
-	rowVillages, err := r.DB.Query("SELECT id, name, x, y, coalesce(owner_name, ''), owner_id, point, village_type FROM villages")
-
+	villages, err := models.Villages().All(ctx, r.DB)
 	if err != nil {
 		return nil, err
-	}
-
-	for rowVillages.Next() {
-		village := &models.Village{}
-		err := rowVillages.Scan(&village.ID, &village.Name, &village.X, &village.Y, &village.Owner_name, &village.Owner_id, &village.Point, &village.Type)
-
-		if err != nil {
-			return nil, err
-		}
-
-		villages = append(villages, village)
-
 	}
 
 	return villages, nil

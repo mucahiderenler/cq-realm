@@ -26,7 +26,6 @@ func main() {
 			repos.NewVillageRepository,
 			AsRoute(handlers.NewMapHandler),
 			services.NewMapService,
-			repos.NewMapRepository,
 			db.ProvideDB,
 			zap.NewExample,
 		),

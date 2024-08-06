@@ -17,7 +17,7 @@ func NewMapHandler(service *services.MapService) *MapHandler {
 }
 
 func (m *MapHandler) getMapById(w http.ResponseWriter, r *http.Request) {
-	Map, err := m.Service.GetMap()
+	Map, err := m.Service.GetMap(r.Context())
 
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusNotFound)

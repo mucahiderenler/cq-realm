@@ -1,10 +1,10 @@
 package db
 
 import (
-	"database/sql"
 	"fmt"
 	"log"
 
+	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq" // PostgreSQL driver
 )
 
@@ -20,7 +20,7 @@ type Config struct {
 }
 
 // ProvideDB initializes the database connection
-func ProvideDB() (*sql.DB, error) {
+func ProvideDB() (*sqlx.DB, error) {
 	config := Config{
 		User:     "postgres",
 		Password: "password",
@@ -32,8 +32,7 @@ func ProvideDB() (*sql.DB, error) {
 
 	dsn := fmt.Sprintf("user=%s password=%s dbname=%s host=%s port=%s sslmode=%s",
 		config.User, config.Password, config.DBName, config.Host, config.Port, config.SSLMode)
-
-	db, err := sql.Open("postgres", dsn)
+	db, err := sqlx.Open("postgres", dsn)
 	if err != nil {
 		return nil, err
 	}
