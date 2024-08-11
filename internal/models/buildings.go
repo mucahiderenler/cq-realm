@@ -24,14 +24,16 @@ import (
 
 // Building is an object representing the database table.
 type Building struct {
-	ID             int       `boil:"id" json:"id" toml:"id" yaml:"id"`
-	VillageID      int       `boil:"village_id" json:"village_id" toml:"village_id" yaml:"village_id"`
-	Name           string    `boil:"name" json:"name" toml:"name" yaml:"name"`
-	BuildingType   int       `boil:"building_type" json:"building_type" toml:"building_type" yaml:"building_type"`
-	Level          int       `boil:"level" json:"level" toml:"level" yaml:"level"`
-	ProductionRate null.Int  `boil:"production_rate" json:"production_rate,omitempty" toml:"production_rate" yaml:"production_rate,omitempty"`
-	BuildTime      null.Time `boil:"build_time" json:"build_time,omitempty" toml:"build_time" yaml:"build_time,omitempty"`
-	LastUpgrade    null.Time `boil:"last_upgrade" json:"last_upgrade,omitempty" toml:"last_upgrade" yaml:"last_upgrade,omitempty"`
+	ID             int        `boil:"id" json:"id" toml:"id" yaml:"id"`
+	VillageID      int        `boil:"village_id" json:"villageID" toml:"village_id" yaml:"village_id"`
+	Name           string     `boil:"name" json:"name" toml:"name" yaml:"name"`
+	BuildingType   int        `boil:"building_type" json:"buildingType" toml:"building_type" yaml:"building_type"`
+	Level          int        `boil:"level" json:"level" toml:"level" yaml:"level"`
+	ProductionRate null.Int   `boil:"production_rate" json:"productionRate,omitempty" toml:"production_rate" yaml:"production_rate,omitempty"`
+	BuildTime      null.Time  `boil:"build_time" json:"buildTime,omitempty" toml:"build_time" yaml:"build_time,omitempty"`
+	LastUpgrade    null.Time  `boil:"last_upgrade" json:"lastUpgrade,omitempty" toml:"last_upgrade" yaml:"last_upgrade,omitempty"`
+	TileX          null.Int16 `boil:"tile_x" json:"tileX,omitempty" toml:"tile_x" yaml:"tile_x,omitempty"`
+	TileY          null.Int16 `boil:"tile_y" json:"tileY,omitempty" toml:"tile_y" yaml:"tile_y,omitempty"`
 
 	R *buildingR `boil:"-" json:"-" toml:"-" yaml:"-"`
 	L buildingL  `boil:"-" json:"-" toml:"-" yaml:"-"`
@@ -46,6 +48,8 @@ var BuildingColumns = struct {
 	ProductionRate string
 	BuildTime      string
 	LastUpgrade    string
+	TileX          string
+	TileY          string
 }{
 	ID:             "id",
 	VillageID:      "village_id",
@@ -55,6 +59,8 @@ var BuildingColumns = struct {
 	ProductionRate: "production_rate",
 	BuildTime:      "build_time",
 	LastUpgrade:    "last_upgrade",
+	TileX:          "tile_x",
+	TileY:          "tile_y",
 }
 
 var BuildingTableColumns = struct {
@@ -66,6 +72,8 @@ var BuildingTableColumns = struct {
 	ProductionRate string
 	BuildTime      string
 	LastUpgrade    string
+	TileX          string
+	TileY          string
 }{
 	ID:             "buildings.id",
 	VillageID:      "buildings.village_id",
@@ -75,6 +83,8 @@ var BuildingTableColumns = struct {
 	ProductionRate: "buildings.production_rate",
 	BuildTime:      "buildings.build_time",
 	LastUpgrade:    "buildings.last_upgrade",
+	TileX:          "buildings.tile_x",
+	TileY:          "buildings.tile_y",
 }
 
 // Generated where
@@ -191,6 +201,44 @@ func (w whereHelpernull_Time) GTE(x null.Time) qm.QueryMod {
 func (w whereHelpernull_Time) IsNull() qm.QueryMod    { return qmhelper.WhereIsNull(w.field) }
 func (w whereHelpernull_Time) IsNotNull() qm.QueryMod { return qmhelper.WhereIsNotNull(w.field) }
 
+type whereHelpernull_Int16 struct{ field string }
+
+func (w whereHelpernull_Int16) EQ(x null.Int16) qm.QueryMod {
+	return qmhelper.WhereNullEQ(w.field, false, x)
+}
+func (w whereHelpernull_Int16) NEQ(x null.Int16) qm.QueryMod {
+	return qmhelper.WhereNullEQ(w.field, true, x)
+}
+func (w whereHelpernull_Int16) LT(x null.Int16) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.LT, x)
+}
+func (w whereHelpernull_Int16) LTE(x null.Int16) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.LTE, x)
+}
+func (w whereHelpernull_Int16) GT(x null.Int16) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.GT, x)
+}
+func (w whereHelpernull_Int16) GTE(x null.Int16) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.GTE, x)
+}
+func (w whereHelpernull_Int16) IN(slice []int16) qm.QueryMod {
+	values := make([]interface{}, 0, len(slice))
+	for _, value := range slice {
+		values = append(values, value)
+	}
+	return qm.WhereIn(fmt.Sprintf("%s IN ?", w.field), values...)
+}
+func (w whereHelpernull_Int16) NIN(slice []int16) qm.QueryMod {
+	values := make([]interface{}, 0, len(slice))
+	for _, value := range slice {
+		values = append(values, value)
+	}
+	return qm.WhereNotIn(fmt.Sprintf("%s NOT IN ?", w.field), values...)
+}
+
+func (w whereHelpernull_Int16) IsNull() qm.QueryMod    { return qmhelper.WhereIsNull(w.field) }
+func (w whereHelpernull_Int16) IsNotNull() qm.QueryMod { return qmhelper.WhereIsNotNull(w.field) }
+
 var BuildingWhere = struct {
 	ID             whereHelperint
 	VillageID      whereHelperint
@@ -200,6 +248,8 @@ var BuildingWhere = struct {
 	ProductionRate whereHelpernull_Int
 	BuildTime      whereHelpernull_Time
 	LastUpgrade    whereHelpernull_Time
+	TileX          whereHelpernull_Int16
+	TileY          whereHelpernull_Int16
 }{
 	ID:             whereHelperint{field: "\"buildings\".\"id\""},
 	VillageID:      whereHelperint{field: "\"buildings\".\"village_id\""},
@@ -209,6 +259,8 @@ var BuildingWhere = struct {
 	ProductionRate: whereHelpernull_Int{field: "\"buildings\".\"production_rate\""},
 	BuildTime:      whereHelpernull_Time{field: "\"buildings\".\"build_time\""},
 	LastUpgrade:    whereHelpernull_Time{field: "\"buildings\".\"last_upgrade\""},
+	TileX:          whereHelpernull_Int16{field: "\"buildings\".\"tile_x\""},
+	TileY:          whereHelpernull_Int16{field: "\"buildings\".\"tile_y\""},
 }
 
 // BuildingRels is where relationship names are stored.
@@ -239,9 +291,9 @@ func (r *buildingR) GetVillage() *Village {
 type buildingL struct{}
 
 var (
-	buildingAllColumns            = []string{"id", "village_id", "name", "building_type", "level", "production_rate", "build_time", "last_upgrade"}
+	buildingAllColumns            = []string{"id", "village_id", "name", "building_type", "level", "production_rate", "build_time", "last_upgrade", "tile_x", "tile_y"}
 	buildingColumnsWithoutDefault = []string{"village_id", "name", "building_type", "level"}
-	buildingColumnsWithDefault    = []string{"id", "production_rate", "build_time", "last_upgrade"}
+	buildingColumnsWithDefault    = []string{"id", "production_rate", "build_time", "last_upgrade", "tile_x", "tile_y"}
 	buildingPrimaryKeyColumns     = []string{"id"}
 	buildingGeneratedColumns      = []string{}
 )

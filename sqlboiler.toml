@@ -12,3 +12,9 @@ add-enum-types = true
   schema = "public"
   sslmode = "disable"
   blacklist = ["migrations", "other"]
+
+[struct-tag-cases]
+  toml = "snake"
+  yaml = "snake"
+  json = "camel"
+  boil = "snake"

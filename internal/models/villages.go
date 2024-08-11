@@ -28,10 +28,10 @@ type Village struct {
 	Name        null.String `boil:"name" json:"name,omitempty" toml:"name" yaml:"name,omitempty"`
 	X           null.Int    `boil:"x" json:"x,omitempty" toml:"x" yaml:"x,omitempty"`
 	Y           null.Int    `boil:"y" json:"y,omitempty" toml:"y" yaml:"y,omitempty"`
-	OwnerName   null.String `boil:"owner_name" json:"owner_name,omitempty" toml:"owner_name" yaml:"owner_name,omitempty"`
-	OwnerID     null.Int    `boil:"owner_id" json:"owner_id,omitempty" toml:"owner_id" yaml:"owner_id,omitempty"`
+	OwnerName   null.String `boil:"owner_name" json:"ownerName,omitempty" toml:"owner_name" yaml:"owner_name,omitempty"`
+	OwnerID     null.Int    `boil:"owner_id" json:"ownerID,omitempty" toml:"owner_id" yaml:"owner_id,omitempty"`
 	Point       null.Int    `boil:"point" json:"point,omitempty" toml:"point" yaml:"point,omitempty"`
-	VillageType null.Int    `boil:"village_type" json:"village_type,omitempty" toml:"village_type" yaml:"village_type,omitempty"`
+	VillageType null.Int    `boil:"village_type" json:"villageType,omitempty" toml:"village_type" yaml:"village_type,omitempty"`
 
 	R *villageR `boil:"-" json:"-" toml:"-" yaml:"-"`
 	L villageL  `boil:"-" json:"-" toml:"-" yaml:"-"`
