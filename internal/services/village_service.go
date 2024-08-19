@@ -9,17 +9,19 @@ import (
 )
 
 type VillageService struct {
-	Repo   *repository.VillageRepository
-	Logger *zap.Logger
+	Repo            *repository.VillageRepository
+	ResourceService *ResourceService
+	Logger          *zap.Logger
 }
 
 type GetVillageByIDResult struct {
-	Village   *models.Village
-	Buildings []*models.Building
+	Village   *models.Village    `json:"village"`
+	Buildings []*models.Building `json:"buildings"`
+	Resources *Resources         `json:"resources"`
 }
 
-func NewVillageService(repo *repository.VillageRepository, logger *zap.Logger) *VillageService {
-	return &VillageService{Repo: repo, Logger: logger}
+func NewVillageService(repo *repository.VillageRepository, resouceService *ResourceService, logger *zap.Logger) *VillageService {
+	return &VillageService{Repo: repo, ResourceService: resouceService, Logger: logger}
 }
 
 func (s *VillageService) GetAllVillages(ctx context.Context) ([]*models.Village, error) {
@@ -35,8 +37,12 @@ func (s *VillageService) GetAllVillages(ctx context.Context) ([]*models.Village,
 // Get a village by its ID
 func (s *VillageService) GetVillageByID(ctx context.Context, id string) (*GetVillageByIDResult, error) {
 	village, err := s.Repo.GetByID(ctx, id)
+	if err != nil {
+		return nil, err
+	}
 	buildings := village.R.Buildings
-	result := &GetVillageByIDResult{Village: village, Buildings: buildings}
+	resources, err := s.ResourceService.GetVillageResources(ctx, id)
+	result := &GetVillageByIDResult{Village: village, Buildings: buildings, Resources: resources}
 	if err != nil {
 		return nil, err
 	}
