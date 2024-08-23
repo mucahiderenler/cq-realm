@@ -21,6 +21,16 @@ func NewBuildingRepository(DB *sqlx.DB) *BuildingRepository {
 	return &BuildingRepository{DB: DB}
 }
 
+func (r *BuildingRepository) GetBuildingById(ctx context.Context, buildingId string) (*models.Building, error) {
+	building, err := models.Buildings(Where("id = ?", buildingId)).One(ctx, r.DB)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return building, nil
+}
+
 func (r *BuildingRepository) GetResourceBuildingsForVillage(ctx context.Context, villageId string) ([]*models.Building, error) {
 	var resourceBuildings []*models.Building
 	resourceBuildings, err := models.Buildings(Where("village_id = ?", villageId), WhereIn("building_type IN ?", resourceBuildingTypes...)).All(ctx, r.DB)
