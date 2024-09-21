@@ -2,6 +2,7 @@ package services
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"mucahiderenler/conquerors-realm/internal/repository"
 )
@@ -17,11 +18,16 @@ func NewBuildingService(resourceService *ResourceService, buildingRepo *reposito
 }
 
 func (b *BuildingService) UpgradeBuildingInit(ctx context.Context, buildingId string, villageId string) error {
-	_, err := b.buildingRepo.GetBuildingById(ctx, buildingId)
+	building, err := b.buildingRepo.GetBuildingById(ctx, buildingId)
 
-	fmt.Println(b.gameConfigService.config.Buildings["barracks"].UpgradeTime)
 	if err != nil {
 		return err
+	}
+
+	buildingConfig, ok := b.gameConfigService.GetBuildingConfig(building.Name)
+
+	if !ok {
+		return errors.New(fmt.Sprintf("Cannot find the building config for: ", building.Name))
 	}
 
 	return nil

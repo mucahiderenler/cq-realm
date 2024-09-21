@@ -59,3 +59,13 @@ func (s *GameConfigService) loadConfig(filepath string) error {
 	s.config = config
 	return nil
 }
+
+func (s *GameConfigService) GetBuildingConfig(buildingName string) (*Building, bool) {
+	building, ok := s.config.Buildings[buildingName]
+
+	if ok {
+		return &building, ok
+	}
+
+	return nil, ok
+}
