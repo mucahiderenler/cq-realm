@@ -4,7 +4,9 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	models "mucahiderenler/conquerors-realm/internal/models"
 	"mucahiderenler/conquerors-realm/internal/repository"
+	"time"
 )
 
 type BuildingService struct {
@@ -30,12 +32,36 @@ func (b *BuildingService) UpgradeBuildingInit(ctx context.Context, buildingId st
 		return errors.New(fmt.Sprintf("Cannot find the building config for: ", building.Name))
 	}
 
+	currentResources, err := b.resourceService.GetVillageResources(ctx, villageId)
+
+	if err != nil {
+		return err
+	}
+
+	// assumes upgrade is next level, should we also request upgrade level? that also needs to be validated before starting upgrade
+	var nextUpgradeLevel = building.Level + 1
+
+	neededResources := buildingConfig.UpgradingCosts[nextUpgradeLevel]
+
+	isResourcesEnough := checkResources(neededResources, *currentResources)
+
+	if !isResourcesEnough {
+		return errors.New(fmt.Sprintf("Resources are not enough for this upgrade", building.Name))
+	}
+
+	// start upgrading, decrease the resources from village
+	currentResources.Clay -= neededResources.Clay
+	currentResources.Iron -= neededResources.Iron
+	currentResources.Wood -= neededResources.Wood
+	b.buildingRepo.InsertResourcesBack(ctx, currentResources, time.Now())
 	return nil
 
-	// give building id and level to game config service, it will return the conditons for upgrade
-	// conditons, err := b.gameConfigService.getConditions(ctx, building)
+}
 
-	// if conditons met (for now just resources, in the future maybe other buildings will effect the upgrade of a building)
+func checkResources(neededResources models.Resources, currentResources models.Resources) bool {
+	if currentResources.Clay >= neededResources.Clay && currentResources.Iron >= neededResources.Iron && currentResources.Wood >= neededResources.Wood {
+		return true
+	}
 
-	// b.resourceService.GetVillageResources()
+	return false
 }

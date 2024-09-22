@@ -2,6 +2,7 @@ package services
 
 import (
 	"context"
+	models "mucahiderenler/conquerors-realm/internal/models"
 	"mucahiderenler/conquerors-realm/internal/repository"
 	"time"
 
@@ -13,17 +14,11 @@ type ResourceService struct {
 	Logger       *zap.Logger
 }
 
-type Resources struct {
-	Wood int `json:"wood"`
-	Clay int `json:"clay"`
-	Iron int `json:"iron"`
-}
-
 func NewResourceService(buildingRepo *repository.BuildingRepository, logger *zap.Logger) *ResourceService {
 	return &ResourceService{BuildingRepo: buildingRepo, Logger: logger}
 }
 
-func (s *ResourceService) GetVillageResources(ctx context.Context, villageId string) (*Resources, error) {
+func (s *ResourceService) GetVillageResources(ctx context.Context, villageId string) (*models.Resources, error) {
 	resourceBuildings, err := s.BuildingRepo.GetResourceBuildingsForVillage(ctx, villageId)
 
 	if err != nil {
@@ -36,19 +31,16 @@ func (s *ResourceService) GetVillageResources(ctx context.Context, villageId str
 		return nil, err
 	}
 
-	var resources *Resources = &Resources{Wood: 0, Clay: 0, Iron: 0}
+	var resources *models.Resources = &models.Resources{Wood: 0, Clay: 0, Iron: 0}
 	now := time.Now()
-	for i := 0; i < len(resourceBuildings); i++ {
-		resourceBuilding := resourceBuildings[i]
+	for _, resourceBuilding := range resourceBuildings {
 		minutesPast := now.Sub(resourceBuilding.LastInteraction.Time).Minutes()
 		currentResource := resourceBuilding.LastResource.Float64 + (minutesPast * resourceBuilding.ProductionRate.Float64)
 
+		// if calculated resource is bigger than our storage capacity, set the resource to capacity
 		if currentResource > storageBuilding.ProductionRate.Float64 {
 			currentResource = storageBuilding.ProductionRate.Float64
 		}
-
-		// insert resources and last interaction back
-		s.BuildingRepo.InsertResourcesBack(ctx, resourceBuilding.ID, currentResource, now)
 
 		if resourceBuilding.BuildingType == 2 {
 			resources.Iron = int(currentResource)
@@ -59,5 +51,7 @@ func (s *ResourceService) GetVillageResources(ctx context.Context, villageId str
 		}
 	}
 
+	// insert resources and last interaction back
+	s.BuildingRepo.InsertResourcesBack(ctx, resources, now)
 	return resources, nil
 }

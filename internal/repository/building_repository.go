@@ -6,8 +6,6 @@ import (
 	"time"
 
 	"github.com/jmoiron/sqlx"
-	"github.com/volatiletech/null/v8"
-	"github.com/volatiletech/sqlboiler/v4/boil"
 	. "github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
 
@@ -54,11 +52,25 @@ func (r *BuildingRepository) GetStorageBuildingForVillage(ctx context.Context, v
 	return storageBuilding, nil
 }
 
-func (r *BuildingRepository) InsertResourcesBack(ctx context.Context, buildingId int, currentResouce float64, now time.Time) {
-	building, _ := models.FindBuilding(ctx, r.DB, buildingId)
+func (r *BuildingRepository) InsertResourcesBack(ctx context.Context, resources *models.Resources, now time.Time) error {
+	query := `update buildings set 
+	last_resource = CASE
+		WHEN building_type = 2 THEN $1
+		WHEN building_type = 3 THEN $2 
+		WHEN building_type = 5 THEN $3 
+		ELSE last_resource
+	END,
 
-	building.LastInteraction = null.TimeFrom(now)
-	building.LastResource = null.Float64From(currentResouce)
+	last_interaction = $4 
 
-	building.Update(ctx, r.DB, boil.Infer())
+
+	where village_id = 2 and building_type in (2,3,5)`
+
+	_, err := r.DB.Exec(query, resources.Iron, resources.Wood, resources.Clay, now)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
