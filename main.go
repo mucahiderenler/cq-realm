@@ -4,11 +4,14 @@ import (
 	handlers "mucahiderenler/conquerors-realm/internal/handlers"
 	repos "mucahiderenler/conquerors-realm/internal/repository"
 	services "mucahiderenler/conquerors-realm/internal/services"
+	tasks "mucahiderenler/conquerors-realm/internal/tasks"
+	worker "mucahiderenler/conquerors-realm/pkg/asynq"
 	db "mucahiderenler/conquerors-realm/pkg/db"
 	server "mucahiderenler/conquerors-realm/pkg/http"
 	"net/http"
 
 	"github.com/gorilla/mux"
+	"github.com/hibiken/asynq"
 	"go.uber.org/fx"
 	"go.uber.org/zap"
 )
@@ -34,8 +37,11 @@ func main() {
 			AsRoute(handlers.NewResourceHandler),
 			db.ProvideDB,
 			zap.NewExample,
+			tasks.NewTaskHandler,
+			worker.NewAsynqServer,
 		),
 		fx.Invoke(func(*http.Server) {}),
+		fx.Invoke(func(*asynq.Server) {}),
 	).Run()
 }
 

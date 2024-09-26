@@ -17,7 +17,7 @@ type VillageService struct {
 type GetVillageByIDResult struct {
 	Village   *models.Village    `json:"village"`
 	Buildings []*models.Building `json:"buildings"`
-	Resources *Resources         `json:"resources"`
+	Resources *models.Resources  `json:"resources"`
 }
 
 func NewVillageService(repo *repository.VillageRepository, resouceService *ResourceService, logger *zap.Logger) *VillageService {

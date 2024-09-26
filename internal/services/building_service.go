@@ -6,6 +6,7 @@ import (
 	"fmt"
 	models "mucahiderenler/conquerors-realm/internal/models"
 	"mucahiderenler/conquerors-realm/internal/repository"
+	"mucahiderenler/conquerors-realm/internal/tasks"
 	"time"
 )
 
@@ -13,10 +14,18 @@ type BuildingService struct {
 	buildingRepo      *repository.BuildingRepository
 	resourceService   *ResourceService
 	gameConfigService *GameConfigService
+	taskHandler       *tasks.TaskHandler
 }
 
-func NewBuildingService(resourceService *ResourceService, buildingRepo *repository.BuildingRepository, gameConfigService *GameConfigService) *BuildingService {
-	return &BuildingService{resourceService: resourceService, buildingRepo: buildingRepo, gameConfigService: gameConfigService}
+func NewBuildingService(resourceService *ResourceService,
+	buildingRepo *repository.BuildingRepository,
+	gameConfigService *GameConfigService,
+	taskHandler *tasks.TaskHandler) *BuildingService {
+	return &BuildingService{resourceService: resourceService,
+		buildingRepo:      buildingRepo,
+		gameConfigService: gameConfigService,
+		taskHandler:       taskHandler,
+	}
 }
 
 func (b *BuildingService) UpgradeBuildingInit(ctx context.Context, buildingId string, villageId string) error {
@@ -29,7 +38,7 @@ func (b *BuildingService) UpgradeBuildingInit(ctx context.Context, buildingId st
 	buildingConfig, ok := b.gameConfigService.GetBuildingConfig(building.Name)
 
 	if !ok {
-		return errors.New(fmt.Sprintf("Cannot find the building config for: ", building.Name))
+		return errors.New(fmt.Sprintf("Cannot find the building config for: %s ", building.Name))
 	}
 
 	currentResources, err := b.resourceService.GetVillageResources(ctx, villageId)
@@ -54,6 +63,7 @@ func (b *BuildingService) UpgradeBuildingInit(ctx context.Context, buildingId st
 	currentResources.Iron -= neededResources.Iron
 	currentResources.Wood -= neededResources.Wood
 	b.buildingRepo.InsertResourcesBack(ctx, currentResources, time.Now())
+	b.taskHandler.BuildingUpgradeTask("1", "2", "10")
 	return nil
 
 }

@@ -3,16 +3,17 @@ package services
 import (
 	"encoding/json"
 	"fmt"
+	models "mucahiderenler/conquerors-realm/internal/models"
 	"os"
 )
 
 type Building struct {
-	BuildingSpeed     map[int]int       `json:"buildingSpeed"`
-	UpgradeTime       map[int]int       `json:"upgradeTime"`
-	NeededPopulation  map[int]int       `json:"neededPopulation"`
-	UpgradingCosts    map[int]Resources `json:"upgradingCosts"`
-	PointByLevel      map[int]int       `json:"pointByLevel"`
-	ProductionByLevel map[int]int       `json:"productionByLevel"`
+	BuildingSpeed     map[int]int              `json:"buildingSpeed"`
+	UpgradeTime       map[int]int              `json:"upgradeTime"`
+	NeededPopulation  map[int]int              `json:"neededPopulation"`
+	UpgradingCosts    map[int]models.Resources `json:"upgradingCosts"`
+	PointByLevel      map[int]int              `json:"pointByLevel"`
+	ProductionByLevel map[int]int              `json:"productionByLevel"`
 }
 
 type Unit struct {
