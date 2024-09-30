@@ -2,16 +2,15 @@ package worker
 
 import (
 	"context"
-	"mucahiderenler/conquerors-realm/internal/tasks"
 
 	"github.com/hibiken/asynq"
 	"go.uber.org/fx"
 	"go.uber.org/zap"
 )
 
-const redisAddr = "172.17.0.2:6379"
+const redisAddr = "172.17.0.4:6379"
 
-func NewAsynqServer(lc fx.Lifecycle, taskHandler *tasks.TaskHandler, logger *zap.Logger) *asynq.Server {
+func NewAsynqServer(lc fx.Lifecycle, taskHandler *TaskHandler, logger *zap.Logger) *asynq.Server {
 	server := asynq.NewServer(
 		asynq.RedisClientOpt{Addr: redisAddr},
 		asynq.Config{Concurrency: 10},

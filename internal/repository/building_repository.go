@@ -74,3 +74,15 @@ func (r *BuildingRepository) InsertResourcesBack(ctx context.Context, resources 
 
 	return nil
 }
+
+func (r *BuildingRepository) UpgradeBuilding(villageId string, buildingId string, newLevel int, newProductionRate int) error {
+	query := `update buildings set production_rate = $1, level = $2 where village_id = $3 and building_type = $4`
+
+	_, err := r.DB.Exec(query, newProductionRate, newLevel, villageId, buildingId)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

@@ -5,9 +5,9 @@ import (
 	repos "mucahiderenler/conquerors-realm/internal/repository"
 	services "mucahiderenler/conquerors-realm/internal/services"
 	tasks "mucahiderenler/conquerors-realm/internal/tasks"
-	worker "mucahiderenler/conquerors-realm/pkg/asynq"
 	db "mucahiderenler/conquerors-realm/pkg/db"
 	server "mucahiderenler/conquerors-realm/pkg/http"
+	worker "mucahiderenler/conquerors-realm/pkg/worker"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -37,8 +37,9 @@ func main() {
 			AsRoute(handlers.NewResourceHandler),
 			db.ProvideDB,
 			zap.NewExample,
-			tasks.NewTaskHandler,
+			worker.NewTaskHandler,
 			worker.NewAsynqServer,
+			tasks.NewBuildingHandler,
 		),
 		fx.Invoke(func(*http.Server) {}),
 		fx.Invoke(func(*asynq.Server) {}),

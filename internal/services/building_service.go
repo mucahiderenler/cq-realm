@@ -2,29 +2,31 @@ package services
 
 import (
 	"context"
-	"errors"
+	"encoding/json"
 	"fmt"
-	models "mucahiderenler/conquerors-realm/internal/models"
+	"mucahiderenler/conquerors-realm/internal/models"
 	"mucahiderenler/conquerors-realm/internal/repository"
-	"mucahiderenler/conquerors-realm/internal/tasks"
+	"mucahiderenler/conquerors-realm/internal/types"
 	"time"
+
+	"github.com/hibiken/asynq"
 )
+
+const redisAddr = "172.17.0.4:6379"
 
 type BuildingService struct {
 	buildingRepo      *repository.BuildingRepository
 	resourceService   *ResourceService
 	gameConfigService *GameConfigService
-	taskHandler       *tasks.TaskHandler
 }
 
 func NewBuildingService(resourceService *ResourceService,
 	buildingRepo *repository.BuildingRepository,
 	gameConfigService *GameConfigService,
-	taskHandler *tasks.TaskHandler) *BuildingService {
+) *BuildingService {
 	return &BuildingService{resourceService: resourceService,
 		buildingRepo:      buildingRepo,
 		gameConfigService: gameConfigService,
-		taskHandler:       taskHandler,
 	}
 }
 
@@ -38,7 +40,7 @@ func (b *BuildingService) UpgradeBuildingInit(ctx context.Context, buildingId st
 	buildingConfig, ok := b.gameConfigService.GetBuildingConfig(building.Name)
 
 	if !ok {
-		return errors.New(fmt.Sprintf("Cannot find the building config for: %s ", building.Name))
+		return fmt.Errorf("cannot find building config for: %s", building.Name)
 	}
 
 	currentResources, err := b.resourceService.GetVillageResources(ctx, villageId)
@@ -55,17 +57,71 @@ func (b *BuildingService) UpgradeBuildingInit(ctx context.Context, buildingId st
 	isResourcesEnough := checkResources(neededResources, *currentResources)
 
 	if !isResourcesEnough {
-		return errors.New(fmt.Sprintf("Resources are not enough for this upgrade", building.Name))
+		return fmt.Errorf("resources are not enough for this upgrade %s", building.Name)
 	}
 
 	// start upgrading, decrease the resources from village
 	currentResources.Clay -= neededResources.Clay
 	currentResources.Iron -= neededResources.Iron
 	currentResources.Wood -= neededResources.Wood
+
 	b.buildingRepo.InsertResourcesBack(ctx, currentResources, time.Now())
-	b.taskHandler.BuildingUpgradeTask("1", "2", "10")
+	BuildingUpgradeTask(villageId, buildingId)
 	return nil
 
+}
+
+func (b *BuildingService) UpgradeBuilding(ctx context.Context, buildingId string, villageId string) error {
+	building, err := b.buildingRepo.GetBuildingById(ctx, buildingId)
+
+	if err != nil {
+		return err
+	}
+
+	buildingConfig, ok := b.gameConfigService.GetBuildingConfig(building.Name)
+
+	if !ok {
+		return fmt.Errorf("cannot find building config for: %s", building.Name)
+	}
+
+	newBuildingLevel := building.Level + 1
+	newProductionRate := buildingConfig.HourlyProductionByLevel[newBuildingLevel]
+
+	err = b.buildingRepo.UpgradeBuilding(villageId, buildingId, newBuildingLevel, newProductionRate)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+func BuildingUpgradeTask(villageID string, buildingID string) error {
+	payload, err := json.Marshal(types.BuildingUpgradePayload{VillageID: villageID, BuildingID: buildingID})
+	if err != nil {
+		fmt.Println("Building upgrade task json marshal failed", err)
+		return err
+	}
+
+	fmt.Println("Building upgrading task initializing: ", string(payload))
+
+	task := asynq.NewTask(types.TypeBuildingUpgrade, payload)
+
+	enqueueTask(task, 10)
+	return nil
+}
+
+func enqueueTask(task *asynq.Task, seconds int) (*asynq.TaskInfo, error) {
+	client := asynq.NewClient(asynq.RedisClientOpt{Addr: redisAddr})
+	defer client.Close()
+
+	info, err := client.Enqueue(task, asynq.ProcessIn(time.Second*time.Duration(seconds)))
+
+	if err != nil {
+		fmt.Println("Error happened while enqueing the task", err)
+		return nil, err
+	}
+
+	return info, nil
 }
 
 func checkResources(neededResources models.Resources, currentResources models.Resources) bool {

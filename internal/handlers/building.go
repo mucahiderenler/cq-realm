@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"encoding/json"
-	"fmt"
 	"io"
 	"mucahiderenler/conquerors-realm/internal/services"
 	"net/http"
@@ -36,8 +35,6 @@ func (h *BuildingHandler) UpgradeBuilding(w http.ResponseWriter, r *http.Request
 	defer r.Body.Close()
 
 	var requestBody UpgradeBuildingBody
-
-	fmt.Println(string(body))
 
 	err = json.Unmarshal(body, &requestBody)
 
