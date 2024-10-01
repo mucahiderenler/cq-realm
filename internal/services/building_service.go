@@ -2,14 +2,10 @@ package services
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"mucahiderenler/conquerors-realm/internal/models"
 	"mucahiderenler/conquerors-realm/internal/repository"
-	"mucahiderenler/conquerors-realm/internal/types"
 	"time"
-
-	"github.com/hibiken/asynq"
 )
 
 const redisAddr = "172.17.0.4:6379"
@@ -53,6 +49,7 @@ func (b *BuildingService) UpgradeBuildingInit(ctx context.Context, buildingId st
 	var nextUpgradeLevel = building.Level + 1
 
 	neededResources := buildingConfig.UpgradingCosts[nextUpgradeLevel]
+	upgradeTime := buildingConfig.UpgradeTime[nextUpgradeLevel]
 
 	isResourcesEnough := checkResources(neededResources, *currentResources)
 
@@ -66,7 +63,7 @@ func (b *BuildingService) UpgradeBuildingInit(ctx context.Context, buildingId st
 	currentResources.Wood -= neededResources.Wood
 
 	b.buildingRepo.InsertResourcesBack(ctx, currentResources, time.Now())
-	BuildingUpgradeTask(villageId, buildingId)
+	BuildingUpgradeTask(villageId, buildingId, upgradeTime)
 	return nil
 
 }
@@ -94,34 +91,6 @@ func (b *BuildingService) UpgradeBuilding(ctx context.Context, buildingId string
 	}
 
 	return nil
-}
-func BuildingUpgradeTask(villageID string, buildingID string) error {
-	payload, err := json.Marshal(types.BuildingUpgradePayload{VillageID: villageID, BuildingID: buildingID})
-	if err != nil {
-		fmt.Println("Building upgrade task json marshal failed", err)
-		return err
-	}
-
-	fmt.Println("Building upgrading task initializing: ", string(payload))
-
-	task := asynq.NewTask(types.TypeBuildingUpgrade, payload)
-
-	enqueueTask(task, 10)
-	return nil
-}
-
-func enqueueTask(task *asynq.Task, seconds int) (*asynq.TaskInfo, error) {
-	client := asynq.NewClient(asynq.RedisClientOpt{Addr: redisAddr})
-	defer client.Close()
-
-	info, err := client.Enqueue(task, asynq.ProcessIn(time.Second*time.Duration(seconds)))
-
-	if err != nil {
-		fmt.Println("Error happened while enqueing the task", err)
-		return nil, err
-	}
-
-	return info, nil
 }
 
 func checkResources(neededResources models.Resources, currentResources models.Resources) bool {
