@@ -62,7 +62,7 @@ func (b *BuildingService) UpgradeBuildingInit(ctx context.Context, buildingId st
 	currentResources.Iron -= neededResources.Iron
 	currentResources.Wood -= neededResources.Wood
 
-	b.buildingRepo.InsertResourcesBack(ctx, currentResources, time.Now())
+	b.buildingRepo.InsertResourcesBack(ctx, villageId, currentResources, time.Now())
 	BuildingUpgradeTask(villageId, buildingId, upgradeTime)
 	return nil
 

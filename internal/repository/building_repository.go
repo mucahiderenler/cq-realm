@@ -52,7 +52,7 @@ func (r *BuildingRepository) GetStorageBuildingForVillage(ctx context.Context, v
 	return storageBuilding, nil
 }
 
-func (r *BuildingRepository) InsertResourcesBack(ctx context.Context, resources *models.Resources, now time.Time) error {
+func (r *BuildingRepository) InsertResourcesBack(ctx context.Context, villageId string, resources *models.Resources, now time.Time) error {
 	query := `update buildings set 
 	last_resource = CASE
 		WHEN building_type = 2 THEN $1
@@ -64,9 +64,9 @@ func (r *BuildingRepository) InsertResourcesBack(ctx context.Context, resources 
 	last_interaction = $4 
 
 
-	where village_id = 2 and building_type in (2,3,5)`
+	where village_id = $5 and building_type in (2,3,5)`
 
-	_, err := r.DB.Exec(query, resources.Iron, resources.Wood, resources.Clay, now)
+	_, err := r.DB.Exec(query, resources.Iron, resources.Wood, resources.Clay, now, villageId)
 
 	if err != nil {
 		return err

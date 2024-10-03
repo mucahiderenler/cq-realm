@@ -2,7 +2,6 @@ package repository
 
 import (
 	"context"
-	"fmt"
 	"mucahiderenler/conquerors-realm/internal/models"
 
 	"github.com/jmoiron/sqlx"
@@ -20,7 +19,6 @@ func NewVillageRepository(db *sqlx.DB) *VillageRepository {
 func (r *VillageRepository) GetByID(ctx context.Context, id string) (*models.Village, error) {
 	village, err := models.Villages(Load(Rels(models.VillageRels.Buildings)), Where("id = ?", id)).One(ctx, r.DB)
 	if err != nil {
-		fmt.Println(err)
 		return nil, err
 	}
 	return village, nil

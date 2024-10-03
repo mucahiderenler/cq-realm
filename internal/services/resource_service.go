@@ -52,6 +52,6 @@ func (s *ResourceService) GetVillageResources(ctx context.Context, villageId str
 	}
 
 	// insert resources and last interaction back
-	s.BuildingRepo.InsertResourcesBack(ctx, resources, now)
+	s.BuildingRepo.InsertResourcesBack(ctx, villageId, resources, now)
 	return resources, nil
 }
