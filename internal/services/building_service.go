@@ -8,12 +8,21 @@ import (
 	"time"
 )
 
+// TODO:how about an env variable brotherman
 const redisAddr = "172.17.0.4:6379"
 
 type BuildingService struct {
 	buildingRepo      *repository.BuildingRepository
 	resourceService   *ResourceService
 	gameConfigService *GameConfigService
+}
+
+type BuildingDetails struct {
+	UpgradeTime      int              `json:"upgradeTime"`
+	UpgradeCosts     models.Resources `json:"upgradeCosts"`
+	CurrentLevel     int              `json:"currentLevel"`
+	BuildingSpeed    int              `json:"buildingSpeed"`
+	NeededPopulation int              `json:"neededPopulation"`
 }
 
 func NewBuildingService(resourceService *ResourceService,
@@ -26,8 +35,30 @@ func NewBuildingService(resourceService *ResourceService,
 	}
 }
 
+func (b *BuildingService) GetBuildingDetails(ctx context.Context, buildingId string, villageId string) (*BuildingDetails, error) {
+	building, err := b.buildingRepo.GetVillageBuilding(ctx, buildingId, villageId)
+
+	if err != nil {
+		return nil, err
+	}
+
+	buildingConfig, ok := b.gameConfigService.GetBuildingConfig(building.Name)
+	if !ok {
+		return nil, fmt.Errorf("cannot find building config for: %s", building.Name)
+	}
+
+	curLevel := building.Level
+
+	upgradeTime := buildingConfig.UpgradeTime[curLevel+1]
+	upgradeCosts := buildingConfig.UpgradingCosts[curLevel+1]
+	buildingSpeed := buildingConfig.BuildingSpeed[curLevel+1]
+	neededPopulation := buildingConfig.NeededPopulation[curLevel+1]
+
+	return &BuildingDetails{UpgradeTime: upgradeTime, UpgradeCosts: upgradeCosts, CurrentLevel: curLevel, BuildingSpeed: buildingSpeed, NeededPopulation: neededPopulation}, nil
+}
+
 func (b *BuildingService) UpgradeBuildingInit(ctx context.Context, buildingId string, villageId string) error {
-	building, err := b.buildingRepo.GetBuildingById(ctx, buildingId)
+	building, err := b.buildingRepo.GetVillageBuilding(ctx, buildingId, villageId)
 
 	if err != nil {
 		return err
@@ -69,7 +100,7 @@ func (b *BuildingService) UpgradeBuildingInit(ctx context.Context, buildingId st
 }
 
 func (b *BuildingService) UpgradeBuilding(ctx context.Context, buildingId string, villageId string) error {
-	building, err := b.buildingRepo.GetBuildingById(ctx, buildingId)
+	building, err := b.buildingRepo.GetVillageBuilding(ctx, buildingId, villageId)
 
 	if err != nil {
 		return err

@@ -19,8 +19,8 @@ func NewBuildingRepository(DB *sqlx.DB) *BuildingRepository {
 	return &BuildingRepository{DB: DB}
 }
 
-func (r *BuildingRepository) GetBuildingById(ctx context.Context, buildingId string) (*models.Building, error) {
-	building, err := models.Buildings(Where("id = ?", buildingId)).One(ctx, r.DB)
+func (r *BuildingRepository) GetVillageBuilding(ctx context.Context, buildingId string, villageId string) (*models.Building, error) {
+	building, err := models.Buildings(Where("id = ?", buildingId), (Where("village_id = ?", villageId))).One(ctx, r.DB)
 
 	if err != nil {
 		return nil, err

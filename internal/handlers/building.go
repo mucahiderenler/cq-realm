@@ -51,6 +51,22 @@ func (h *BuildingHandler) UpgradeBuilding(w http.ResponseWriter, r *http.Request
 	}
 }
 
+func (h *BuildingHandler) GetBuildingDetails(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	buildingId := vars["buildingId"]
+	villageId := vars["villageId"]
+
+	buildingConfig, err := h.buildingService.GetBuildingDetails(r.Context(), buildingId, villageId)
+
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(buildingConfig)
+}
+
 func (h *BuildingHandler) RegisterRoutes(r *mux.Router) {
 	r.HandleFunc("/building/{buildingId:[a-zA-Z0-9]+}/upgrade", h.UpgradeBuilding).Methods("POST")
+	r.HandleFunc("/villages/{villageId:[a-zA-Z0-9]+}/building/{buildingId:[a-zA-Z0-9]+}", h.GetBuildingDetails).Methods("GET")
 }

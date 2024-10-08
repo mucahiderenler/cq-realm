@@ -7,7 +7,7 @@ import (
 	"os"
 )
 
-type Building struct {
+type BuildingConfig struct {
 	BuildingSpeed           map[int]int              `json:"buildingSpeed"`
 	UpgradeTime             map[int]int              `json:"upgradeTime"`
 	NeededPopulation        map[int]int              `json:"neededPopulation"`
@@ -23,8 +23,8 @@ type buildingName = string
 type unitName = string
 
 type GameConfig struct {
-	Buildings map[buildingName]Building
-	Units     map[unitName]Unit
+	BuildingConfigs map[buildingName]BuildingConfig `json:"buildingConfigs"`
+	Units           map[unitName]Unit               `json:"units"`
 }
 
 type GameConfigService struct {
@@ -61,11 +61,11 @@ func (s *GameConfigService) loadConfig(filepath string) error {
 	return nil
 }
 
-func (s *GameConfigService) GetBuildingConfig(buildingName string) (*Building, bool) {
-	building, ok := s.config.Buildings[buildingName]
+func (s *GameConfigService) GetBuildingConfig(buildingName string) (*BuildingConfig, bool) {
+	buildingConfig, ok := s.config.BuildingConfigs[buildingName]
 
 	if ok {
-		return &building, ok
+		return &buildingConfig, ok
 	}
 
 	return nil, ok

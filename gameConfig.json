@@ -1,5 +1,5 @@
 {
-  "buildings": {
+  "buildingConfigs": {
     "Headquarter": {
       "buildingSpeed": {
         "0": 0,
