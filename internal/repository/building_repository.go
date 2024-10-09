@@ -20,7 +20,7 @@ func NewBuildingRepository(DB *sqlx.DB) *BuildingRepository {
 }
 
 func (r *BuildingRepository) GetVillageBuilding(ctx context.Context, buildingId string, villageId string) (*models.Building, error) {
-	building, err := models.Buildings(Where("id = ?", buildingId), (Where("village_id = ?", villageId))).One(ctx, r.DB)
+	building, err := models.Buildings(Where("building_type = ?", buildingId), (Where("village_id = ?", villageId))).One(ctx, r.DB)
 
 	if err != nil {
 		return nil, err

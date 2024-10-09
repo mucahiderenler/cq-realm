@@ -56,7 +56,6 @@ func (s *GameConfigService) loadConfig(filepath string) error {
 	if err != nil {
 		return err
 	}
-
 	s.config = config
 	return nil
 }

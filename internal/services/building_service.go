@@ -23,6 +23,7 @@ type BuildingDetails struct {
 	CurrentLevel     int              `json:"currentLevel"`
 	BuildingSpeed    int              `json:"buildingSpeed"`
 	NeededPopulation int              `json:"neededPopulation"`
+	UpgradedSpeed    int              `json:"upgradedSpeed"`
 }
 
 func NewBuildingService(resourceService *ResourceService,
@@ -48,13 +49,13 @@ func (b *BuildingService) GetBuildingDetails(ctx context.Context, buildingId str
 	}
 
 	curLevel := building.Level
-
+	buildingSpeed := buildingConfig.BuildingSpeed[curLevel]
 	upgradeTime := buildingConfig.UpgradeTime[curLevel+1]
 	upgradeCosts := buildingConfig.UpgradingCosts[curLevel+1]
-	buildingSpeed := buildingConfig.BuildingSpeed[curLevel+1]
+	upgradedSpeed := buildingConfig.BuildingSpeed[curLevel+1]
 	neededPopulation := buildingConfig.NeededPopulation[curLevel+1]
 
-	return &BuildingDetails{UpgradeTime: upgradeTime, UpgradeCosts: upgradeCosts, CurrentLevel: curLevel, BuildingSpeed: buildingSpeed, NeededPopulation: neededPopulation}, nil
+	return &BuildingDetails{UpgradeTime: upgradeTime, UpgradeCosts: upgradeCosts, CurrentLevel: curLevel, BuildingSpeed: buildingSpeed, NeededPopulation: neededPopulation, UpgradedSpeed: upgradedSpeed}, nil
 }
 
 func (b *BuildingService) UpgradeBuildingInit(ctx context.Context, buildingId string, villageId string) error {
