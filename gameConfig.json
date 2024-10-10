@@ -1,7 +1,7 @@
 {
   "buildingConfigs": {
     "Headquarter": {
-      "buildingSpeed": {
+      "buildingAdvantage": {
         "0": 0,
         "1": 10,
         "2": 13,
@@ -91,7 +91,7 @@
         "9": 195,
         "10": 240
       },
-      "hourlyProductionByLevel": {
+      "buildingAdvantage": {
         "0": 5,
         "1": 10,
         "2": 15,
@@ -156,7 +156,7 @@
         "9": 195,
         "10": 240
       },
-      "hourlyProductionByLevel": {
+      "buildingAdvantage": {
         "0": 5,
         "1": 10,
         "2": 15,
@@ -221,7 +221,7 @@
         "9": 195,
         "10": 240
       },
-      "hourlyProductionByLevel": {
+      "buildingAdvantage": {
         "0": 5,
         "1": 10,
         "2": 15,
@@ -261,9 +261,9 @@
       }
     },
     "Storage": {
-    "capacity": {
-      "1": 500,
-      "2": 1500,
+    "buildingAdvantage": {
+        "1": 500,
+        "2": 1500,
         "3": 2500,
         "4": 4000,
         "5": 6000,
@@ -324,7 +324,7 @@
         "10": 240
       }
     },
-    "farm": {
+    "Farm": {
       "neededPopulation": {
         "0": 0,
         "1": 0,
@@ -338,7 +338,7 @@
         "9": 0,
         "10": 0
       },
-      "populationLimit": {
+      "buildingAdvantage": {
         "1": 500,
         "2": 1500,
         "3": 2500,
@@ -388,8 +388,8 @@
         "10": 240
       }
     },
-    "barracks": {
-      "trainingSpeed": {
+    "Barracks": {
+      "buildingAdvantage": {
         "0": 0,
         "1": 10,
         "2": 13,
@@ -453,8 +453,8 @@
         "10": 240
       }
     },
-    "stable": {
-      "trainingSpeed": {
+    "Stable": {
+      "buildingAdvantage": {
         "0": 0,
         "1": 10,
         "2": 13,
@@ -518,8 +518,8 @@
         "10": 240
       }
     },
-    "workshop": {
-      "trainingSpeed": {
+    "Workshop": {
+      "buildingAdvantage": {
         "0": 0,
         "1": 10,
         "2": 13,

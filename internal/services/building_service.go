@@ -18,12 +18,12 @@ type BuildingService struct {
 }
 
 type BuildingDetails struct {
-	UpgradeTime      int              `json:"upgradeTime"`
-	UpgradeCosts     models.Resources `json:"upgradeCosts"`
-	CurrentLevel     int              `json:"currentLevel"`
-	BuildingSpeed    int              `json:"buildingSpeed"`
-	NeededPopulation int              `json:"neededPopulation"`
-	UpgradedSpeed    int              `json:"upgradedSpeed"`
+	UpgradeTime           int              `json:"upgradeTime"`
+	UpgradeCosts          models.Resources `json:"upgradeCosts"`
+	CurrentLevel          int              `json:"currentLevel"`
+	BuildingAdvantage     int              `json:"buildingAdvantage"`
+	NeededPopulation      int              `json:"neededPopulation"`
+	BuildingNextAdvantage int              `json:"buildingNextAdvantage"`
 }
 
 func NewBuildingService(resourceService *ResourceService,
@@ -49,13 +49,13 @@ func (b *BuildingService) GetBuildingDetails(ctx context.Context, buildingId str
 	}
 
 	curLevel := building.Level
-	buildingSpeed := buildingConfig.BuildingSpeed[curLevel]
+	buildingAdvantage := buildingConfig.BuildingAdvantage[curLevel]
 	upgradeTime := buildingConfig.UpgradeTime[curLevel+1]
 	upgradeCosts := buildingConfig.UpgradingCosts[curLevel+1]
-	upgradedSpeed := buildingConfig.BuildingSpeed[curLevel+1]
+	buildingNextAdvantage := buildingConfig.BuildingAdvantage[curLevel+1]
 	neededPopulation := buildingConfig.NeededPopulation[curLevel+1]
 
-	return &BuildingDetails{UpgradeTime: upgradeTime, UpgradeCosts: upgradeCosts, CurrentLevel: curLevel, BuildingSpeed: buildingSpeed, NeededPopulation: neededPopulation, UpgradedSpeed: upgradedSpeed}, nil
+	return &BuildingDetails{UpgradeTime: upgradeTime, UpgradeCosts: upgradeCosts, CurrentLevel: curLevel, BuildingAdvantage: buildingAdvantage, NeededPopulation: neededPopulation, BuildingNextAdvantage: buildingNextAdvantage}, nil
 }
 
 func (b *BuildingService) UpgradeBuildingInit(ctx context.Context, buildingId string, villageId string) error {
@@ -114,7 +114,7 @@ func (b *BuildingService) UpgradeBuilding(ctx context.Context, buildingId string
 	}
 
 	newBuildingLevel := building.Level + 1
-	newProductionRate := buildingConfig.HourlyProductionByLevel[newBuildingLevel]
+	newProductionRate := buildingConfig.BuildingAdvantage[newBuildingLevel]
 
 	err = b.buildingRepo.UpgradeBuilding(villageId, buildingId, newBuildingLevel, newProductionRate)
 

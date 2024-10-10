@@ -42,9 +42,9 @@ func (s *ResourceService) GetVillageResources(ctx context.Context, villageId str
 			currentResource = storageBuilding.ProductionRate.Float64
 		}
 
-		if resourceBuilding.BuildingType == 2 {
+		if resourceBuilding.BuildingID == 2 {
 			resources.Iron = int(currentResource)
-		} else if resourceBuilding.BuildingType == 3 {
+		} else if resourceBuilding.BuildingID == 3 {
 			resources.Wood = int(currentResource)
 		} else {
 			resources.Clay = int(currentResource)

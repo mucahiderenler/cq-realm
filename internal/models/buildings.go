@@ -24,18 +24,19 @@ import (
 
 // Building is an object representing the database table.
 type Building struct {
-	ID              int        `boil:"id" json:"id" toml:"id" yaml:"id"`
-	VillageID       int        `boil:"village_id" json:"villageID" toml:"village_id" yaml:"village_id"`
-	Name            string     `boil:"name" json:"name" toml:"name" yaml:"name"`
-	BuildingType    int        `boil:"building_type" json:"buildingType" toml:"building_type" yaml:"building_type"`
-	Level           int        `boil:"level" json:"level" toml:"level" yaml:"level"`
-	ProductionRate  null.Float64   `boil:"production_rate" json:"productionRate,omitempty" toml:"production_rate" yaml:"production_rate,omitempty"`
-	BuildTime       null.Time  `boil:"build_time" json:"buildTime,omitempty" toml:"build_time" yaml:"build_time,omitempty"`
-	LastUpgrade     null.Time  `boil:"last_upgrade" json:"lastUpgrade,omitempty" toml:"last_upgrade" yaml:"last_upgrade,omitempty"`
-	TileX           null.Int16 `boil:"tile_x" json:"tileX,omitempty" toml:"tile_x" yaml:"tile_x,omitempty"`
-	TileY           null.Int16 `boil:"tile_y" json:"tileY,omitempty" toml:"tile_y" yaml:"tile_y,omitempty"`
-	LastInteraction null.Time  `boil:"last_interaction" json:"lastInteraction,omitempty" toml:"last_interaction" yaml:"last_interaction,omitempty"`
-	LastResource    null.Float64   `boil:"last_resource" json:"lastResource,omitempty" toml:"last_resource" yaml:"last_resource,omitempty"`
+	ID              int          `boil:"id" json:"id" toml:"id" yaml:"id"`
+	VillageID       int          `boil:"village_id" json:"villageID" toml:"village_id" yaml:"village_id"`
+	Name            string       `boil:"name" json:"name" toml:"name" yaml:"name"`
+	BuildingID      int          `boil:"building_id" json:"buildingID" toml:"building_id" yaml:"building_id"`
+	Level           int          `boil:"level" json:"level" toml:"level" yaml:"level"`
+	ProductionRate  null.Float64 `boil:"production_rate" json:"productionRate,omitempty" toml:"production_rate" yaml:"production_rate,omitempty"`
+	TileX           null.Int16   `boil:"tile_x" json:"tileX,omitempty" toml:"tile_x" yaml:"tile_x,omitempty"`
+	TileY           null.Int16   `boil:"tile_y" json:"tileY,omitempty" toml:"tile_y" yaml:"tile_y,omitempty"`
+	LastResource    null.Float64 `boil:"last_resource" json:"lastResource,omitempty" toml:"last_resource" yaml:"last_resource,omitempty"`
+	LastInteraction null.Time    `boil:"last_interaction" json:"lastInteraction,omitempty" toml:"last_interaction" yaml:"last_interaction,omitempty"`
+	LastUpgrade     null.Time    `boil:"last_upgrade" json:"lastUpgrade,omitempty" toml:"last_upgrade" yaml:"last_upgrade,omitempty"`
+	BuildTime       null.Time    `boil:"build_time" json:"buildTime,omitempty" toml:"build_time" yaml:"build_time,omitempty"`
+	BuildingType    null.String  `boil:"building_type" json:"buildingType,omitempty" toml:"building_type" yaml:"building_type,omitempty"`
 
 	R *buildingR `boil:"-" json:"-" toml:"-" yaml:"-"`
 	L buildingL  `boil:"-" json:"-" toml:"-" yaml:"-"`
@@ -45,56 +46,60 @@ var BuildingColumns = struct {
 	ID              string
 	VillageID       string
 	Name            string
-	BuildingType    string
+	BuildingID      string
 	Level           string
 	ProductionRate  string
-	BuildTime       string
-	LastUpgrade     string
 	TileX           string
 	TileY           string
-	LastInteraction string
 	LastResource    string
+	LastInteraction string
+	LastUpgrade     string
+	BuildTime       string
+	BuildingType    string
 }{
 	ID:              "id",
 	VillageID:       "village_id",
 	Name:            "name",
-	BuildingType:    "building_type",
+	BuildingID:      "building_id",
 	Level:           "level",
 	ProductionRate:  "production_rate",
-	BuildTime:       "build_time",
-	LastUpgrade:     "last_upgrade",
 	TileX:           "tile_x",
 	TileY:           "tile_y",
-	LastInteraction: "last_interaction",
 	LastResource:    "last_resource",
+	LastInteraction: "last_interaction",
+	LastUpgrade:     "last_upgrade",
+	BuildTime:       "build_time",
+	BuildingType:    "building_type",
 }
 
 var BuildingTableColumns = struct {
 	ID              string
 	VillageID       string
 	Name            string
-	BuildingType    string
+	BuildingID      string
 	Level           string
 	ProductionRate  string
-	BuildTime       string
-	LastUpgrade     string
 	TileX           string
 	TileY           string
-	LastInteraction string
 	LastResource    string
+	LastInteraction string
+	LastUpgrade     string
+	BuildTime       string
+	BuildingType    string
 }{
 	ID:              "buildings.id",
 	VillageID:       "buildings.village_id",
 	Name:            "buildings.name",
-	BuildingType:    "buildings.building_type",
+	BuildingID:      "buildings.building_id",
 	Level:           "buildings.level",
 	ProductionRate:  "buildings.production_rate",
-	BuildTime:       "buildings.build_time",
-	LastUpgrade:     "buildings.last_upgrade",
 	TileX:           "buildings.tile_x",
 	TileY:           "buildings.tile_y",
-	LastInteraction: "buildings.last_interaction",
 	LastResource:    "buildings.last_resource",
+	LastInteraction: "buildings.last_interaction",
+	LastUpgrade:     "buildings.last_upgrade",
+	BuildTime:       "buildings.build_time",
+	BuildingType:    "buildings.building_type",
 }
 
 // Generated where
@@ -149,34 +154,34 @@ func (w whereHelperstring) NIN(slice []string) qm.QueryMod {
 	return qm.WhereNotIn(fmt.Sprintf("%s NOT IN ?", w.field), values...)
 }
 
-type whereHelpernull_Int struct{ field string }
+type whereHelpernull_Float64 struct{ field string }
 
-func (w whereHelpernull_Int) EQ(x null.Int) qm.QueryMod {
+func (w whereHelpernull_Float64) EQ(x null.Float64) qm.QueryMod {
 	return qmhelper.WhereNullEQ(w.field, false, x)
 }
-func (w whereHelpernull_Int) NEQ(x null.Int) qm.QueryMod {
+func (w whereHelpernull_Float64) NEQ(x null.Float64) qm.QueryMod {
 	return qmhelper.WhereNullEQ(w.field, true, x)
 }
-func (w whereHelpernull_Int) LT(x null.Int) qm.QueryMod {
+func (w whereHelpernull_Float64) LT(x null.Float64) qm.QueryMod {
 	return qmhelper.Where(w.field, qmhelper.LT, x)
 }
-func (w whereHelpernull_Int) LTE(x null.Int) qm.QueryMod {
+func (w whereHelpernull_Float64) LTE(x null.Float64) qm.QueryMod {
 	return qmhelper.Where(w.field, qmhelper.LTE, x)
 }
-func (w whereHelpernull_Int) GT(x null.Int) qm.QueryMod {
+func (w whereHelpernull_Float64) GT(x null.Float64) qm.QueryMod {
 	return qmhelper.Where(w.field, qmhelper.GT, x)
 }
-func (w whereHelpernull_Int) GTE(x null.Int) qm.QueryMod {
+func (w whereHelpernull_Float64) GTE(x null.Float64) qm.QueryMod {
 	return qmhelper.Where(w.field, qmhelper.GTE, x)
 }
-func (w whereHelpernull_Int) IN(slice []int) qm.QueryMod {
+func (w whereHelpernull_Float64) IN(slice []float64) qm.QueryMod {
 	values := make([]interface{}, 0, len(slice))
 	for _, value := range slice {
 		values = append(values, value)
 	}
 	return qm.WhereIn(fmt.Sprintf("%s IN ?", w.field), values...)
 }
-func (w whereHelpernull_Int) NIN(slice []int) qm.QueryMod {
+func (w whereHelpernull_Float64) NIN(slice []float64) qm.QueryMod {
 	values := make([]interface{}, 0, len(slice))
 	for _, value := range slice {
 		values = append(values, value)
@@ -184,32 +189,8 @@ func (w whereHelpernull_Int) NIN(slice []int) qm.QueryMod {
 	return qm.WhereNotIn(fmt.Sprintf("%s NOT IN ?", w.field), values...)
 }
 
-func (w whereHelpernull_Int) IsNull() qm.QueryMod    { return qmhelper.WhereIsNull(w.field) }
-func (w whereHelpernull_Int) IsNotNull() qm.QueryMod { return qmhelper.WhereIsNotNull(w.field) }
-
-type whereHelpernull_Time struct{ field string }
-
-func (w whereHelpernull_Time) EQ(x null.Time) qm.QueryMod {
-	return qmhelper.WhereNullEQ(w.field, false, x)
-}
-func (w whereHelpernull_Time) NEQ(x null.Time) qm.QueryMod {
-	return qmhelper.WhereNullEQ(w.field, true, x)
-}
-func (w whereHelpernull_Time) LT(x null.Time) qm.QueryMod {
-	return qmhelper.Where(w.field, qmhelper.LT, x)
-}
-func (w whereHelpernull_Time) LTE(x null.Time) qm.QueryMod {
-	return qmhelper.Where(w.field, qmhelper.LTE, x)
-}
-func (w whereHelpernull_Time) GT(x null.Time) qm.QueryMod {
-	return qmhelper.Where(w.field, qmhelper.GT, x)
-}
-func (w whereHelpernull_Time) GTE(x null.Time) qm.QueryMod {
-	return qmhelper.Where(w.field, qmhelper.GTE, x)
-}
-
-func (w whereHelpernull_Time) IsNull() qm.QueryMod    { return qmhelper.WhereIsNull(w.field) }
-func (w whereHelpernull_Time) IsNotNull() qm.QueryMod { return qmhelper.WhereIsNotNull(w.field) }
+func (w whereHelpernull_Float64) IsNull() qm.QueryMod    { return qmhelper.WhereIsNull(w.field) }
+func (w whereHelpernull_Float64) IsNotNull() qm.QueryMod { return qmhelper.WhereIsNotNull(w.field) }
 
 type whereHelpernull_Int16 struct{ field string }
 
@@ -249,32 +230,108 @@ func (w whereHelpernull_Int16) NIN(slice []int16) qm.QueryMod {
 func (w whereHelpernull_Int16) IsNull() qm.QueryMod    { return qmhelper.WhereIsNull(w.field) }
 func (w whereHelpernull_Int16) IsNotNull() qm.QueryMod { return qmhelper.WhereIsNotNull(w.field) }
 
+type whereHelpernull_Time struct{ field string }
+
+func (w whereHelpernull_Time) EQ(x null.Time) qm.QueryMod {
+	return qmhelper.WhereNullEQ(w.field, false, x)
+}
+func (w whereHelpernull_Time) NEQ(x null.Time) qm.QueryMod {
+	return qmhelper.WhereNullEQ(w.field, true, x)
+}
+func (w whereHelpernull_Time) LT(x null.Time) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.LT, x)
+}
+func (w whereHelpernull_Time) LTE(x null.Time) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.LTE, x)
+}
+func (w whereHelpernull_Time) GT(x null.Time) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.GT, x)
+}
+func (w whereHelpernull_Time) GTE(x null.Time) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.GTE, x)
+}
+
+func (w whereHelpernull_Time) IsNull() qm.QueryMod    { return qmhelper.WhereIsNull(w.field) }
+func (w whereHelpernull_Time) IsNotNull() qm.QueryMod { return qmhelper.WhereIsNotNull(w.field) }
+
+type whereHelpernull_String struct{ field string }
+
+func (w whereHelpernull_String) EQ(x null.String) qm.QueryMod {
+	return qmhelper.WhereNullEQ(w.field, false, x)
+}
+func (w whereHelpernull_String) NEQ(x null.String) qm.QueryMod {
+	return qmhelper.WhereNullEQ(w.field, true, x)
+}
+func (w whereHelpernull_String) LT(x null.String) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.LT, x)
+}
+func (w whereHelpernull_String) LTE(x null.String) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.LTE, x)
+}
+func (w whereHelpernull_String) GT(x null.String) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.GT, x)
+}
+func (w whereHelpernull_String) GTE(x null.String) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.GTE, x)
+}
+func (w whereHelpernull_String) LIKE(x null.String) qm.QueryMod {
+	return qm.Where(w.field+" LIKE ?", x)
+}
+func (w whereHelpernull_String) NLIKE(x null.String) qm.QueryMod {
+	return qm.Where(w.field+" NOT LIKE ?", x)
+}
+func (w whereHelpernull_String) ILIKE(x null.String) qm.QueryMod {
+	return qm.Where(w.field+" ILIKE ?", x)
+}
+func (w whereHelpernull_String) NILIKE(x null.String) qm.QueryMod {
+	return qm.Where(w.field+" NOT ILIKE ?", x)
+}
+func (w whereHelpernull_String) IN(slice []string) qm.QueryMod {
+	values := make([]interface{}, 0, len(slice))
+	for _, value := range slice {
+		values = append(values, value)
+	}
+	return qm.WhereIn(fmt.Sprintf("%s IN ?", w.field), values...)
+}
+func (w whereHelpernull_String) NIN(slice []string) qm.QueryMod {
+	values := make([]interface{}, 0, len(slice))
+	for _, value := range slice {
+		values = append(values, value)
+	}
+	return qm.WhereNotIn(fmt.Sprintf("%s NOT IN ?", w.field), values...)
+}
+
+func (w whereHelpernull_String) IsNull() qm.QueryMod    { return qmhelper.WhereIsNull(w.field) }
+func (w whereHelpernull_String) IsNotNull() qm.QueryMod { return qmhelper.WhereIsNotNull(w.field) }
+
 var BuildingWhere = struct {
 	ID              whereHelperint
 	VillageID       whereHelperint
 	Name            whereHelperstring
-	BuildingType    whereHelperint
+	BuildingID      whereHelperint
 	Level           whereHelperint
-	ProductionRate  whereHelpernull_Int
-	BuildTime       whereHelpernull_Time
-	LastUpgrade     whereHelpernull_Time
+	ProductionRate  whereHelpernull_Float64
 	TileX           whereHelpernull_Int16
 	TileY           whereHelpernull_Int16
+	LastResource    whereHelpernull_Float64
 	LastInteraction whereHelpernull_Time
-	LastResource    whereHelpernull_Int
+	LastUpgrade     whereHelpernull_Time
+	BuildTime       whereHelpernull_Time
+	BuildingType    whereHelpernull_String
 }{
 	ID:              whereHelperint{field: "\"buildings\".\"id\""},
 	VillageID:       whereHelperint{field: "\"buildings\".\"village_id\""},
 	Name:            whereHelperstring{field: "\"buildings\".\"name\""},
-	BuildingType:    whereHelperint{field: "\"buildings\".\"building_type\""},
+	BuildingID:      whereHelperint{field: "\"buildings\".\"building_id\""},
 	Level:           whereHelperint{field: "\"buildings\".\"level\""},
-	ProductionRate:  whereHelpernull_Int{field: "\"buildings\".\"production_rate\""},
-	BuildTime:       whereHelpernull_Time{field: "\"buildings\".\"build_time\""},
-	LastUpgrade:     whereHelpernull_Time{field: "\"buildings\".\"last_upgrade\""},
+	ProductionRate:  whereHelpernull_Float64{field: "\"buildings\".\"production_rate\""},
 	TileX:           whereHelpernull_Int16{field: "\"buildings\".\"tile_x\""},
 	TileY:           whereHelpernull_Int16{field: "\"buildings\".\"tile_y\""},
+	LastResource:    whereHelpernull_Float64{field: "\"buildings\".\"last_resource\""},
 	LastInteraction: whereHelpernull_Time{field: "\"buildings\".\"last_interaction\""},
-	LastResource:    whereHelpernull_Int{field: "\"buildings\".\"last_resource\""},
+	LastUpgrade:     whereHelpernull_Time{field: "\"buildings\".\"last_upgrade\""},
+	BuildTime:       whereHelpernull_Time{field: "\"buildings\".\"build_time\""},
+	BuildingType:    whereHelpernull_String{field: "\"buildings\".\"building_type\""},
 }
 
 // BuildingRels is where relationship names are stored.
@@ -305,9 +362,9 @@ func (r *buildingR) GetVillage() *Village {
 type buildingL struct{}
 
 var (
-	buildingAllColumns            = []string{"id", "village_id", "name", "building_type", "level", "production_rate", "build_time", "last_upgrade", "tile_x", "tile_y", "last_interaction", "last_resource"}
-	buildingColumnsWithoutDefault = []string{"village_id", "name", "building_type", "level"}
-	buildingColumnsWithDefault    = []string{"id", "production_rate", "build_time", "last_upgrade", "tile_x", "tile_y", "last_interaction", "last_resource"}
+	buildingAllColumns            = []string{"id", "village_id", "name", "building_id", "level", "production_rate", "tile_x", "tile_y", "last_resource", "last_interaction", "last_upgrade", "build_time", "building_type"}
+	buildingColumnsWithoutDefault = []string{"village_id", "name", "building_id", "level"}
+	buildingColumnsWithDefault    = []string{"id", "production_rate", "tile_x", "tile_y", "last_resource", "last_interaction", "last_upgrade", "build_time", "building_type"}
 	buildingPrimaryKeyColumns     = []string{"id"}
 	buildingGeneratedColumns      = []string{}
 )

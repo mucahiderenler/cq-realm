@@ -20,7 +20,7 @@ func NewBuildingRepository(DB *sqlx.DB) *BuildingRepository {
 }
 
 func (r *BuildingRepository) GetVillageBuilding(ctx context.Context, buildingId string, villageId string) (*models.Building, error) {
-	building, err := models.Buildings(Where("building_type = ?", buildingId), (Where("village_id = ?", villageId))).One(ctx, r.DB)
+	building, err := models.Buildings(Where("building_id = ?", buildingId), (Where("village_id = ?", villageId))).One(ctx, r.DB)
 
 	if err != nil {
 		return nil, err
@@ -31,7 +31,7 @@ func (r *BuildingRepository) GetVillageBuilding(ctx context.Context, buildingId 
 
 func (r *BuildingRepository) GetResourceBuildingsForVillage(ctx context.Context, villageId string) ([]*models.Building, error) {
 	var resourceBuildings []*models.Building
-	resourceBuildings, err := models.Buildings(Where("village_id = ?", villageId), WhereIn("building_type IN ?", resourceBuildingTypes...)).All(ctx, r.DB)
+	resourceBuildings, err := models.Buildings(Where("village_id = ?", villageId), WhereIn("building_id IN ?", resourceBuildingTypes...)).All(ctx, r.DB)
 
 	if err != nil {
 		return nil, err
@@ -43,7 +43,7 @@ func (r *BuildingRepository) GetResourceBuildingsForVillage(ctx context.Context,
 func (r *BuildingRepository) GetStorageBuildingForVillage(ctx context.Context, villageId string) (*models.Building, error) {
 	var storageBuilding *models.Building
 
-	storageBuilding, err := models.Buildings(Where("village_id = ? AND building_type = ?", villageId, 6)).One(ctx, r.DB)
+	storageBuilding, err := models.Buildings(Where("village_id = ? AND building_id = ?", villageId, 6)).One(ctx, r.DB)
 
 	if err != nil {
 		return nil, err
@@ -55,16 +55,16 @@ func (r *BuildingRepository) GetStorageBuildingForVillage(ctx context.Context, v
 func (r *BuildingRepository) InsertResourcesBack(ctx context.Context, villageId string, resources *models.Resources, now time.Time) error {
 	query := `update buildings set 
 	last_resource = CASE
-		WHEN building_type = 2 THEN $1
-		WHEN building_type = 3 THEN $2 
-		WHEN building_type = 5 THEN $3 
+		WHEN building_id = 2 THEN $1
+		WHEN building_id = 3 THEN $2 
+		WHEN building_id = 5 THEN $3 
 		ELSE last_resource
 	END,
 
 	last_interaction = $4 
 
 
-	where village_id = $5 and building_type in (2,3,5)`
+	where village_id = $5 and building_id in (2,3,5)`
 
 	_, err := r.DB.Exec(query, resources.Iron, resources.Wood, resources.Clay, now, villageId)
 
@@ -76,7 +76,7 @@ func (r *BuildingRepository) InsertResourcesBack(ctx context.Context, villageId 
 }
 
 func (r *BuildingRepository) UpgradeBuilding(villageId string, buildingId string, newLevel int, newProductionRate int) error {
-	query := `update buildings set production_rate = $1, level = $2 where village_id = $3 and building_type = $4`
+	query := `update buildings set production_rate = $1, level = $2 where village_id = $3 and building_id = $4`
 
 	_, err := r.DB.Exec(query, newProductionRate, newLevel, villageId, buildingId)
 
